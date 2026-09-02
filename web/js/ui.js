@@ -551,7 +551,9 @@
         });
 
         // Nudge buttons: one cell per press, for placement drag cannot land.
-        $('touchBar').addEventListener('pointerdown', function (ev) {
+        // Same either/or as the drag: pointer events where they exist.
+        $('touchBar').addEventListener(
+            window.PointerEvent ? 'pointerdown' : 'touchstart', function (ev) {
             var btn = ev.target.closest('[data-nudge]');
             if (!btn || !view) { return; }
             global.Sound.unlock();

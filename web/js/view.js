@@ -610,50 +610,112 @@
         window.addEventListener('keydown', this._onKeyDown);
 
         /*
-         * Pointer capture is what keeps the drag alive once the finger leaves
-         * the board, but Safari has historically been unreliable about it. The
-         * move and release handlers are therefore also bound on document while
-         * a drag is running, so the drag survives capture silently failing.
+         * Dragging is bound on document for the life of a drag, and deliberately
+         * does NOT use setPointerCapture. Capture exists to keep events coming
+         * once the pointer leaves the element, but listening on document already
+         * does that — and WebKit has a long history of capture silently killing
+         * the pointermove stream, which is exactly the failure this avoids.
+         *
+         * Pointer events are used where they exist and touch events otherwise,
+         * never both, so nothing is handled twice.
          */
-        var onMove = function (ev) {
-            if (!self.dragging || ev.pointerId !== self.dragPointerId) { return; }
-            self.dragTo(ev);
-            ev.preventDefault();
+        var beginDrag = function (id, x, y, kind) {
+            if (!self.engine || self.gameOver || self.dragging) { return false; }
+            global.Sound.unlock();
+
+            self.dragging = true;
+            self.dragPointerId = id;
+            self.dragPiece = self.lastPieceAdded;
+            self.timeBar.classList.add('is-grabbing');
+            self.dragTo({ clientX: x, clientY: y, pointerType: kind });
+            return true;
         };
 
-        var release = function (ev) {
-            if (!self.dragging || (ev.pointerId !== undefined &&
-                                   ev.pointerId !== self.dragPointerId)) { return; }
+        var moveDrag = function (id, x, y, kind) {
+            if (!self.dragging || id !== self.dragPointerId) { return false; }
+            self.dragTo({ clientX: x, clientY: y, pointerType: kind });
+            return true;
+        };
+
+        var endDrag = function () {
+            if (!self.dragging) { return; }
             self.dragging = false;
             self.dragPiece = null;
             self.dragPointerId = null;
             self.timeBar.classList.remove('is-grabbing', 'is-alert');
-
-            try { self.wrap.releasePointerCapture(ev.pointerId); } catch (err) { /* ok */ }
-            document.removeEventListener('pointermove', onMove);
-            document.removeEventListener('pointerup', release);
-            document.removeEventListener('pointercancel', release);
+            detach();
         };
 
-        this.wrap.addEventListener('pointerdown', function (ev) {
-            if (!self.engine || self.gameOver) { return; }
-            if (self.dragging) { return; }            // ignore a second finger
-            global.Sound.unlock();
+        var attach, detach;
 
-            self.dragging = true;
-            self.dragPointerId = ev.pointerId;
-            self.dragPiece = self.lastPieceAdded;
-            self.timeBar.classList.add('is-grabbing');
+        if (window.PointerEvent) {
+            var onMove = function (ev) {
+                if (moveDrag(ev.pointerId, ev.clientX, ev.clientY, ev.pointerType)) {
+                    ev.preventDefault();
+                }
+            };
+            var onUp = function (ev) {
+                if (!self.dragging || ev.pointerId !== self.dragPointerId) { return; }
+                endDrag();
+            };
 
-            try { self.wrap.setPointerCapture(ev.pointerId); } catch (err) { /* ok */ }
+            attach = function () {
+                document.addEventListener('pointermove', onMove, { passive: false });
+                document.addEventListener('pointerup', onUp);
+                document.addEventListener('pointercancel', onUp);
+            };
+            detach = function () {
+                document.removeEventListener('pointermove', onMove);
+                document.removeEventListener('pointerup', onUp);
+                document.removeEventListener('pointercancel', onUp);
+            };
 
-            document.addEventListener('pointermove', onMove);
-            document.addEventListener('pointerup', release);
-            document.addEventListener('pointercancel', release);
+            this.wrap.addEventListener('pointerdown', function (ev) {
+                if (beginDrag(ev.pointerId, ev.clientX, ev.clientY, ev.pointerType)) {
+                    attach();
+                    ev.preventDefault();
+                }
+            });
 
-            self.dragTo(ev);
-            ev.preventDefault();
-        });
+        } else {
+            // Fallback for anything without Pointer Events (iOS 12 and older).
+            var touchOf = function (ev) {
+                for (var i = 0; i < ev.changedTouches.length; i++) {
+                    if (ev.changedTouches[i].identifier === self.dragPointerId) {
+                        return ev.changedTouches[i];
+                    }
+                }
+                return null;
+            };
+            var onTMove = function (ev) {
+                var t = touchOf(ev);
+                if (t && moveDrag(t.identifier, t.clientX, t.clientY, 'touch')) {
+                    ev.preventDefault();
+                }
+            };
+            var onTEnd = function (ev) {
+                if (touchOf(ev)) { endDrag(); }
+            };
+
+            attach = function () {
+                document.addEventListener('touchmove', onTMove, { passive: false });
+                document.addEventListener('touchend', onTEnd);
+                document.addEventListener('touchcancel', onTEnd);
+            };
+            detach = function () {
+                document.removeEventListener('touchmove', onTMove);
+                document.removeEventListener('touchend', onTEnd);
+                document.removeEventListener('touchcancel', onTEnd);
+            };
+
+            this.wrap.addEventListener('touchstart', function (ev) {
+                var t = ev.changedTouches[0];
+                if (t && beginDrag(t.identifier, t.clientX, t.clientY, 'touch')) {
+                    attach();
+                    ev.preventDefault();
+                }
+            }, { passive: false });
+        }
 
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) { global.Sound.pauseMusic(); }

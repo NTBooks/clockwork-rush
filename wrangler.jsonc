@@ -1,0 +1,14 @@
+{
+  // Clockwork Rush is a fully static site - no Worker script, no server code.
+  // Cloudflare serves ./web straight from its asset store, so there is no
+  // "main" entry point here.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "clockwork-rush",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./web",
+    // Serve /web/index.html at "/" and plain-404 anything else.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}

@@ -1,0 +1,11 @@
+﻿<Window x:Class="Rotetris_Test.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="588.486" Width="706.073" Loaded="Window_Loaded_1" KeyDown="Window_KeyDown_1">
+    <StackPanel>
+        <TextBlock Name="MatchesCount" />
+    <Grid Name="PlayArea">
+        
+    </Grid>
+    </StackPanel>
+</Window>

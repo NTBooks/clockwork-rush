@@ -1,0 +1,65 @@
+﻿<Application
+    x:Class="GearMaker.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+     xmlns:Gear="using:GearMaker"
+    xmlns:local="using:GearMaker" RequestedTheme="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <!-- 
+                    Styles that define common aspects of the platform look and feel
+                    Required by Visual Studio project and item templates
+                 -->
+                <ResourceDictionary Source="Common/StandardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+           
+            <Gear:DivideBy2Converter x:Name="Div2" />
+            <DataTemplate x:Name="GearViewBox">
+
+              
+                <Viewbox  Width="{Binding Path=Width}" Height="{Binding Path=Height}" >
+                    <Viewbox.RenderTransform>
+                        <RotateTransform x:Name="TransRotate"
+                           CenterX="{Binding Path=Width, Converter ={StaticResource Div2} }" CenterY="{Binding Path=Width, Converter ={StaticResource Div2}}" Angle="{Binding Path=Angle}" />
+                    </Viewbox.RenderTransform>
+                  
+                    <Canvas Width="100" Height="100" Name="DrawSurface">
+
+
+                        <Path Fill="{Binding Path=FillsOutline2}"  Data="{Binding Path=GearPathsOutline2}">
+
+                        </Path>
+                        
+                        <Path Fill="{Binding Path=FillsOutline}"  Data="{Binding Path=GearPathsOutline}">
+
+                        </Path>
+
+                        <Path Fill="{Binding Path=Fills}"  Data="{Binding Path=GearPaths}">
+                             
+                        </Path>
+
+                        <Path Fill="{Binding Path=Fills1}"  Data="{Binding Path=GearPaths1}">
+
+                        </Path>
+
+                        <Path Fill="{Binding Path=Fills2}"  Data="{Binding Path=GearPaths2}">
+
+                        </Path>
+
+                        <Path Fill="{Binding Path=Fills3}"  Data="{Binding Path=GearPaths3}">
+
+                        </Path>
+
+
+
+                    </Canvas>
+                </Viewbox>
+               
+            </DataTemplate>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

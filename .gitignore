@@ -1,0 +1,21 @@
+# Code-signing certificates. These are PKCS#12 containers holding the private
+# key the original app was signed with — they must never be published.
+*.pfx
+*.snk
+*.p12
+*.key
+
+# Visual Studio / MSBuild leftovers from the original WinRT projects
+.vs/
+[Bb]in/
+[Oo]bj/
+*.suo
+*.user
+*.vspx
+*.vssscc
+*.vspscc
+
+# Tooling
+node_modules/
+.wrangler/
+.playwright-mcp/

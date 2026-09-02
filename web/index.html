@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#101012">
+<title>Clockwork Rush</title>
+<link rel="icon" href="assets/img/SmallLogo.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ====================================================== main menu ==== -->
+<section class="screen is-active" id="screen-menu">
+  <header class="page-head">
+    <h1 class="page-title">Clockwork Rush</h1>
+  </header>
+
+  <div class="menu-body">
+    <div class="menu-panel">
+
+      <div class="difficulty" id="difficulty">
+        <button class="btn" data-difficulty="beginner">Beginner</button>
+        <button class="btn is-selected" data-difficulty="normal">Normal</button>
+        <button class="btn" data-difficulty="expert">Expert</button>
+        <button class="btn" data-difficulty="custom">Custom</button>
+      </div>
+
+      <div class="option-row">
+        <label for="sliderRow">Max Rows</label>
+        <input type="range" id="sliderRow" min="10" max="16" step="2" value="10" disabled>
+        <output id="outRow">10</output>
+      </div>
+
+      <div class="option-row">
+        <label for="sliderCol">Columns</label>
+        <input type="range" id="sliderCol" min="10" max="30" step="1" value="20" disabled>
+        <output id="outCol">20</output>
+      </div>
+
+      <div class="option-row">
+        <label for="sliderStartRows">Starting Rows</label>
+        <input type="range" id="sliderStartRows" min="1" max="5" step="1" value="3" disabled>
+        <output id="outStartRows">3</output>
+      </div>
+
+      <div class="option-row">
+        <label for="sliderColors">Max Colors</label>
+        <input type="range" id="sliderColors" min="2" max="4" step="1" value="4" disabled>
+        <output id="outColors">4</output>
+      </div>
+
+      <div class="option-row">
+        <label for="sliderSpeed">Speed</label>
+        <input type="range" id="sliderSpeed" min="1" max="5" step="1" value="3" disabled>
+        <output id="outSpeed">3</output>
+      </div>
+
+      <div class="option-row">
+        <label>Music</label>
+        <div class="toggle-group" id="musicGroup">
+          <button class="btn is-selected" data-music="A">A Type</button>
+          <button class="btn" data-music="B">B Type</button>
+          <button class="btn" data-music="">None</button>
+        </div>
+      </div>
+
+      <div class="option-row">
+        <label>SFX</label>
+        <div class="toggle-group" id="sfxGroup">
+          <button class="btn is-selected" data-sfx="on">On</button>
+          <button class="btn" data-sfx="off">Off</button>
+        </div>
+      </div>
+
+      <button class="btn btn-play" id="btnPlay">Play</button>
+      <button class="btn btn-wide" id="btnHelp">How to Play</button>
+      <button class="btn btn-wide" id="btnResume" hidden>Resume Game</button>
+    </div>
+
+    <div class="menu-art">
+      <canvas id="menuGears"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== game ==== -->
+<section class="screen" id="screen-game">
+  <header class="page-head game-head">
+    <button class="back-btn" id="gameBack" title="Back to menu" aria-label="Back to menu"></button>
+    <h1 class="page-title">Clockwork Rush</h1>
+    <div class="score" id="score">0</div>
+    <button class="icon-btn pause-btn" id="btnPause" title="Pause" aria-label="Pause">
+      <svg viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r="27" fill="rgba(244,244,245,.28)"/>
+        <rect x="15" y="12" width="9" height="32" rx="1" fill="rgba(244,244,245,.85)"/>
+        <rect x="32" y="12" width="9" height="32" rx="1" fill="rgba(244,244,245,.85)"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="playfield">
+    <button class="rotate-btn rotate-left" id="btnRotR" aria-label="Rotate board (R)">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M33 20.6 A34 34 0 1 0 67 20.6" fill="none" stroke="currentColor"
+              stroke-width="12" stroke-linecap="butt"/>
+        <path d="M56.6 14.6 L62.5 28.4 L71.5 12.8 Z" fill="currentColor"/>
+      </svg>
+      <span class="rotate-key">R</span>
+    </button>
+
+    <div class="board-wrap" id="boardWrap"></div>
+
+    <button class="rotate-btn rotate-right" id="btnRotQ" aria-label="Rotate board (Q)">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M67 20.6 A34 34 0 1 1 33 20.6" fill="none" stroke="currentColor"
+              stroke-width="12" stroke-linecap="butt"/>
+        <path d="M43.4 14.6 L37.5 28.4 L28.5 12.8 Z" fill="currentColor"/>
+      </svg>
+      <span class="rotate-key">Q</span>
+    </button>
+  </div>
+
+  <div class="touch-bar" id="touchBar">
+    <button class="touch-btn" data-nudge="A" aria-label="Move left">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M25 8 L13 20 L25 32" fill="none"
+        stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="touch-btn" data-nudge="S" aria-label="Move down">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 15 L20 27 L32 15" fill="none"
+        stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="touch-btn" data-nudge="D" aria-label="Move right">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 8 L27 20 L15 32" fill="none"
+        stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="orient-gate" id="orientGate" hidden>
+    <div class="orient-inner">
+      <svg viewBox="0 0 120 120" aria-hidden="true" class="orient-icon">
+        <rect x="38" y="12" width="44" height="76" rx="7" fill="none"
+              stroke="currentColor" stroke-width="4"/>
+        <path d="M22 78 A44 44 0 0 0 66 108" fill="none" stroke="currentColor"
+              stroke-width="4" stroke-linecap="round"/>
+        <path d="M14 66 L22 80 L34 72 Z" fill="currentColor"/>
+      </svg>
+      <h2>Turn your device</h2>
+      <p id="orientWhy"></p>
+      <button class="btn" id="orientAnyway">Play in portrait anyway</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOverlay" hidden>
+    <div class="overlay-card">
+      <h2>Paused</h2>
+      <button class="btn btn-wide" id="btnUnpause">Resume</button>
+      <button class="btn btn-wide" id="btnQuitToMenu">Quit to Menu</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="endOverlay" hidden>
+    <div class="overlay-card">
+      <h2 id="endTitle">Game Over</h2>
+      <p class="end-score">Score <strong id="endScore">0</strong></p>
+      <p class="end-time" id="endTime"></p>
+      <button class="btn btn-wide" id="btnPlayAgain">Play Again</button>
+      <button class="btn btn-wide" id="btnEndMenu">Main Menu</button>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== help ==== -->
+<section class="screen" id="screen-help">
+  <header class="page-head">
+    <button class="back-btn" id="helpBack" title="Back" aria-label="Back"></button>
+    <h1 class="page-title">How to Play</h1>
+  </header>
+
+  <div class="help-menu" id="helpMenu">
+    <button class="btn btn-wide" data-help="controls">Controls</button>
+    <button class="btn btn-wide" data-help="rotation">Board Rotation</button>
+    <button class="btn btn-wide" data-help="matching">Making Matches</button>
+    <button class="btn btn-wide" data-help="combos">Combos</button>
+  </div>
+
+  <div class="help-topic" id="helpTopic" hidden>
+    <h2 id="helpTopicTitle"></h2>
+    <div class="help-figure">
+      <img id="helpImage" alt="">
+      <div class="help-controls-diagram" id="helpControlsDiagram" hidden></div>
+    </div>
+    <p class="help-caption" id="helpCaption"></p>
+    <div class="help-nav">
+      <button class="btn" id="helpPrev">Previous</button>
+      <span class="help-count" id="helpCount"></span>
+      <button class="btn" id="helpNext">Next</button>
+    </div>
+    <button class="btn btn-wide" id="helpTopicBack">Back to Topics</button>
+  </div>
+</section>
+
+<script src="js/engine.js"></script>
+<script src="js/gear.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/help-content.js"></script>
+<script src="js/view.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

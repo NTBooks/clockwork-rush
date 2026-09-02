@@ -1,0 +1,14 @@
+{
+  "name": "clockwork-rush",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser port of the Clockwork Rush gear-matching game (originally WinRT/XAML)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "versions:upload": "wrangler versions upload"
+  },
+  "devDependencies": {
+    "wrangler": "^4.128.0"
+  }
+}

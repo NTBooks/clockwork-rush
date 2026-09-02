@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+  <Identity Name="36852Dinetopia.ClockworkRush" Publisher="CN=60ACA858-9DFB-4181-9D8F-F77F19558304" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Clockwork Rush</DisplayName>
+    <PublisherDisplayName>Dinetopia</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Prerequisites>
+    <OSMinVersion>6.2.1</OSMinVersion>
+    <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
+  </Prerequisites>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="GearMaker.App">
+      <VisualElements DisplayName="Clockwork Rush!" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="Unique falling block puzzler where you don't rotate the block, you spin the interlocking gears on the board! Fully customizable difficulty makes this puzzler as easy or hard as you like. Achieve combos by removing supporting gears to get the higest score!" ForegroundText="dark" BackgroundColor="#007acc" ToastCapable="false">
+        <DefaultTile ShowName="logoOnly" ShortName="Clockwork Rush" WideLogo="Assets\WideLogo.png" />
+        <SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#007acc" />
+        <InitialRotationPreference>
+          <Rotation Preference="landscape" />
+          <Rotation Preference="landscapeFlipped" />
+        </InitialRotationPreference>
+      </VisualElements>
+    </Application>
+  </Applications>
+</Package>

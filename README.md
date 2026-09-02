@@ -61,16 +61,57 @@ never wired up in 2013 either.
 
 ## What's in here
 
-| | |
-| --- | --- |
-| `web/` | The browser port. Plain HTML, CSS and JavaScript — no build step, no dependencies. |
-| `GearMaker/` | The original 2013 WinRT / XAML source, as it was. |
-| `Rotetris Test/` | An earlier WPF prototype, kept for the record. |
-| `wrangler.jsonc` | Cloudflare Workers static-asset config for the deployed site. |
+The folder names are older than the game is, so they need some explaining.
+This is three passes at the same idea, oldest first.
+
+### `Rotetris Test/` — where the mechanic was invented
+
+A WPF proof-of-concept, from before any of it looked like gears. The board is
+one plain `Ellipse` per cell on a 15px grid, filled straight from the model —
+red, blue, green, black. Where the finished game draws a single gear with four
+coloured quadrants, this draws four separate coloured circles.
+
+Most of the game isn't there yet: no combos, no cascades, no win condition. But
+the bones of the engine already are — `AddBlock`, `CheckCollision`,
+`GetCollision`, `GlanceLeft`, `GlanceRight`, `HitBottom` and `RotateRow` all
+survive by name into the finished game.
+
+Two things in it point at what came next. Commented out in the middle of the
+draw loop is a first attempt at an `ArcSegment`, which eventually grew into the
+gear geometry. And a to-do near the top —
+
+```csharp
+// Add events for:
+// Glance Left, Glance Right, Merge, Tick, Remove
+```
+
+— is the engine/view split the real game ended up being built on.
+
+"Rotetris" was the working title: rotate + Tetris. It outlived itself. The
+engine in the shipped Store app is still `namespace Rotetris`.
+
+### `GearMaker/` — the game that shipped
+
+The 2013 Windows Store app: WinRT, C#, XAML views. Unchanged from what was
+published. It's named after the part that took the longest — `UIGear.cs` builds
+every gear procedurally as vector paths, teeth and root circle and four coloured
+quadrants, with no bitmaps anywhere. `Rotetris.cs` is the engine, headless and
+raising events for a view to draw. The `Help*.xaml` pages are the tutorial, and
+several of those screenshots have their explanations burned into the image.
+
+### `web/` — the 2026 port
+
+Plain HTML, CSS and JavaScript. No build step, no dependencies, no frameworks.
+The engine is a line-for-line port; the view is rebuilt as DOM and CSS, with the
+gears redrawn as SVG from the same geometry `UIGear.cs` used.
 
 `web/README.md` has the technical detail — what maps to what, how the view
 animates, and the handful of places the port deliberately departs from the
 original.
+
+Everything else is scaffolding: `wrangler.jsonc` and `package.json` deploy the
+site to Cloudflare, and the two `.sln` files still open the old C# projects in
+Visual Studio, if you have a copy old enough to build them.
 
 ## Running it
 

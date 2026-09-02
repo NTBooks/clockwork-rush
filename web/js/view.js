@@ -114,6 +114,7 @@
         this.timeText = '00:00:00';
         this.dragging = false;
         this.dragPiece = null;
+        this.dragPointerId = null;
         this.lastKeyTime = 0;
 
         this._timer = null;
@@ -608,35 +609,51 @@
         this._onKeyDown = function (ev) { self.handleKey(ev); };
         window.addEventListener('keydown', this._onKeyDown);
 
+        /*
+         * Pointer capture is what keeps the drag alive once the finger leaves
+         * the board, but Safari has historically been unreliable about it. The
+         * move and release handlers are therefore also bound on document while
+         * a drag is running, so the drag survives capture silently failing.
+         */
+        var onMove = function (ev) {
+            if (!self.dragging || ev.pointerId !== self.dragPointerId) { return; }
+            self.dragTo(ev);
+            ev.preventDefault();
+        };
+
+        var release = function (ev) {
+            if (!self.dragging || (ev.pointerId !== undefined &&
+                                   ev.pointerId !== self.dragPointerId)) { return; }
+            self.dragging = false;
+            self.dragPiece = null;
+            self.dragPointerId = null;
+            self.timeBar.classList.remove('is-grabbing', 'is-alert');
+
+            try { self.wrap.releasePointerCapture(ev.pointerId); } catch (err) { /* ok */ }
+            document.removeEventListener('pointermove', onMove);
+            document.removeEventListener('pointerup', release);
+            document.removeEventListener('pointercancel', release);
+        };
+
         this.wrap.addEventListener('pointerdown', function (ev) {
             if (!self.engine || self.gameOver) { return; }
+            if (self.dragging) { return; }            // ignore a second finger
             global.Sound.unlock();
 
             self.dragging = true;
+            self.dragPointerId = ev.pointerId;
             self.dragPiece = self.lastPieceAdded;
             self.timeBar.classList.add('is-grabbing');
 
             try { self.wrap.setPointerCapture(ev.pointerId); } catch (err) { /* ok */ }
+
+            document.addEventListener('pointermove', onMove);
+            document.addEventListener('pointerup', release);
+            document.addEventListener('pointercancel', release);
+
             self.dragTo(ev);
             ev.preventDefault();
         });
-
-        this.wrap.addEventListener('pointermove', function (ev) {
-            if (!self.dragging) { return; }
-            self.dragTo(ev);
-            ev.preventDefault();
-        });
-
-        var release = function (ev) {
-            if (!self.dragging) { return; }
-            self.dragging = false;
-            self.dragPiece = null;
-            self.timeBar.classList.remove('is-grabbing', 'is-alert');
-            try { self.wrap.releasePointerCapture(ev.pointerId); } catch (err) { /* ok */ }
-        };
-
-        this.wrap.addEventListener('pointerup', release);
-        this.wrap.addEventListener('pointercancel', release);
 
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) { global.Sound.pauseMusic(); }
@@ -659,11 +676,28 @@
 
         // A finger would cover the gear, so lift it clear; a mouse grabs it
         // by the middle the way the original did.
+        var e = this.engine;
         var lift = (ev.pointerType === 'touch') ? TOUCH_LIFT : MOUSE_LIFT;
         var col = Math.floor(bx / CELL_W) - 1;
         var row = Math.floor(by / CELL_H) - lift;
 
-        var ok = this.engine.moveUserBlock(row, col);
+        /*
+         * Clamp into the legal region rather than letting the move fail.
+         * Lifting the gear off the fingertip pushes the target row upwards,
+         * so without this, touching just below the timer line asks for a row
+         * above it and moveUserBlock refuses - a dead band the exact height
+         * of the lift, sitting right where you want to drag.
+         */
+        col = Math.max(0, Math.min(col, e.Cols - 2));
+        row = Math.max(e.topRowAllowed, Math.min(row, e.Rows - 2));
+
+        // Follow the finger as closely as the board allows: if that cell is
+        // buried in the pile, ride up the column to the first opening.
+        var ok = false;
+        for (var r = row; r >= e.topRowAllowed && !ok; r--) {
+            ok = e.moveUserBlock(r, col);
+        }
+
         this.timeBar.classList.toggle('is-alert', !ok);
     };
 

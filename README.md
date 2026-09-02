@@ -25,6 +25,28 @@ gear geometry, and the same block-letter WIN / LOSE banners — just expressed i
 JavaScript, DOM and CSS instead of C# and XAML. Even the tutorial screenshots
 are the 2013 originals.
 
+### It was built for Metro
+
+The look is not incidental — it's Windows 8's design language, which Microsoft
+called Metro until it dropped the name shortly before Windows 8 shipped. Flat
+colour, no gradients or bevels, content instead of chrome, and big light-weight
+Segoe UI. The source is full of fossils from it: every page declares the four
+Win8 view states —
+
+    FullScreenLandscape · Filled · FullScreenPortrait · Snapped
+
+— because an app could be shoved into a 320px sidebar next to another one and
+was expected to have a layout ready for it. There's a `WideLogo.png` for the
+live tile, a `SuspensionManager` for the suspend-and-terminate lifecycle, and
+1,845 lines of `StandardStyles.xaml` holding the type ramp.
+
+All of that went away. Windows 10 replaced snapping with ordinary windows,
+Fluent brought back depth and shadow, and Windows 11 dropped live tiles
+entirely. But what dated was the chrome, not the content — flat saturated
+shapes on a black field still look like a deliberate choice rather than a
+period detail. Nothing about the game's appearance needed updating for the
+port; everything thrown away was scaffolding.
+
 ## How to play
 
 Gears sit on a staggered lattice. Each gear covers a 2×2 block of cells, and

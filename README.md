@@ -143,7 +143,7 @@ It's a folder of static files; any static server will do.
 npx wrangler dev
 ```
 
-Then open <http://127.0.0.1:8787>.
+Then open <http://localhost:8787>.
 
 ## No license
 
